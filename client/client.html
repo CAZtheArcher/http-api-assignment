@@ -5,7 +5,78 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    const handleResponse = async (response, type) => {
+      const content = document.querySelector('#content');
 
+      switch(response.status){
+        case 200: //success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 400: //created
+          content.innerHTML = '<b>Bad Request</b>';
+          break;
+        case 401: //updated (no response back from server)
+          content.innerHTML = '<b>Unauthorized</b>';
+          return;
+        case 403: //bad request
+          content.innerHTML = `<b>Forbidden</b>`;
+          break;
+        case 500: //bad request
+          content.innerHTML = `<b>Internal Server Error</b>`;
+          break;
+        case 501: //bad request
+          content.innerHTML = `<b>Not Implimented</b>`;
+          break;
+        case 404: //bad request
+          content.innerHTML = `<b>Resource Not Found</b>`;
+          break;
+        default: //any other status code
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }
+
+        //Parse the response to json. This is an async function, so we will await it.
+        let obj = await response.json();
+        
+        //To display the data easily, we will just stringify it again and display it.
+        let jsonString = JSON.stringify(obj);
+        Object.keys(obj).forEach(key =>{
+          content.innerHTML+=`<p>${key}: ${obj[key]}</p>`
+        })
+        console.log(`<p>${jsonString}</p>`);
+    }
+
+    const requestUpdate = async () => {
+      const page = document.querySelector('#page').value;
+      const type = document.querySelector('#type').value;
+
+      console.log(page);
+      console.log(type);
+
+      let response = await fetch(page, {
+        method: 'get',
+        headers: {
+          'Accept': type
+        },
+      });
+      console.log(response);
+      handleResponse(response, type);
+    }
+
+    const init = () => {
+      const userSubmitButton = document.querySelector('#send');
+      const top = document.querySelector('#top');
+
+      const getPageType = (e) => {
+        e.preventDefault();
+        requestUpdate();
+        return false;
+      }
+
+      userSubmitButton.addEventListener('click', getPageType);
+    }
+
+    window.onload = init;
   </script>
 </head>
 <body>

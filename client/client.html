@@ -5,8 +5,9 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-    const handleResponse = async (response, type) => {
+    const handleResponse = async (response) => {
       const content = document.querySelector('#content');
+      const type = document.querySelector('#type').value;
 
       switch(response.status){
         case 200: //success
@@ -34,16 +35,20 @@
           content.innerHTML = `Error code not implemented by client.`;
           break;
       }
-
-        //Parse the response to json. This is an async function, so we will await it.
-        let obj = await response.json();
-        
-        //To display the data easily, we will just stringify it again and display it.
-        let jsonString = JSON.stringify(obj);
-        Object.keys(obj).forEach(key =>{
-          content.innerHTML+=`<p>${key}: ${obj[key]}</p>`
-        })
-        console.log(`<p>${jsonString}</p>`);
+        if(type === 'text/xml'){
+          console.log(response.body);
+          let obj = await response.text();
+          content.innerHTML+=`<p>${obj}</p>`
+        }
+        else{
+          //Parse the response to json. This is an async function, so we will await it.
+          let obj = await response.json();
+          let jsonString = JSON.stringify(obj);
+          Object.keys(obj).forEach(key =>{
+            content.innerHTML+=`<p>${key}: ${obj[key]}</p>`
+          })
+          console.log(`<p>${jsonString}</p>`);
+        }
     }
 
     const requestUpdate = async () => {
@@ -60,7 +65,7 @@
         },
       });
       console.log(response);
-      handleResponse(response, type);
+      handleResponse(response);
     }
 
     const init = () => {
